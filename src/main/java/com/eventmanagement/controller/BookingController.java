@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
 import java.util.List;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -20,7 +21,7 @@ public class BookingController {
     }
     
      @PostMapping
-     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
+     public ResponseEntity<Booking> createBooking( @Valid @RequestBody Booking booking) {
         Booking create = bookingService.createBooking(booking);
         return ResponseEntity.ok(create);
      }

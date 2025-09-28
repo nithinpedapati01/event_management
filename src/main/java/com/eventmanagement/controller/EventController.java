@@ -11,6 +11,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
@@ -23,7 +25,8 @@ public class EventController {
 
     // Create Event
     @PostMapping
-    public Event createEvent(@RequestBody Event event) {
+    
+    public Event createEvent(@Valid @RequestBody Event event) {
         return eventService.createEvent(event);
     }
 

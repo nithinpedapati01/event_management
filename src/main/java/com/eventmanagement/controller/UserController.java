@@ -6,6 +6,7 @@ import com.eventmanagement.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user){
+    public ResponseEntity<User> registerUser(@Valid @RequestBody User user){
         User savedUser = userService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email){
+    public ResponseEntity<User> getUserByEmail(@Valid @PathVariable String email){
         return userService.getUserByEmail(email)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
