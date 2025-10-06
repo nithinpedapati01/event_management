@@ -2,6 +2,10 @@ package com.eventmanagement.service;
 
 import com.eventmanagement.entity.Event;
 import com.eventmanagement.repository.EventRepository;
+
+import com.eventmanagement.exception.ResourceNotFoundException;
+
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -43,8 +47,10 @@ public class EventService {
 
 
     public Event getEventById(Long id) {
-        return eventRepository.findById(id).orElse(null);
+         return eventRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
     }
+
 
     public List<Event> getEventsByLocation(String location) {
         return eventRepository.findByLocationIgnoreCase(location);
@@ -69,7 +75,8 @@ public class EventService {
             }
         });
         return eventRepository.save(event);
-    }).orElseThrow(() -> new RuntimeException("Event not found"));
+    }).orElseThrow(() -> new ResourceNotFoundException("Event not found with id " + id));
+
     }
 
 

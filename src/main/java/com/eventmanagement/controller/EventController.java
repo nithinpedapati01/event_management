@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
 import jakarta.validation.Valid;
+import com.eventmanagement.exception.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/api/events")
@@ -25,9 +25,9 @@ public class EventController {
 
     // Create Event
     @PostMapping
-    
-    public Event createEvent(@Valid @RequestBody Event event) {
-        return eventService.createEvent(event);
+    public ResponseEntity<Event> createEvent(@Valid @RequestBody Event event) {
+        Event savedEvent = eventService.createEvent(event);
+        return ResponseEntity.status(201).body(savedEvent);
     }
 
     // Get all events
@@ -36,13 +36,13 @@ public class EventController {
         return eventService.getAllEvents();
     }
 
-    // Get upcoming events
+    // Get completed events
     @GetMapping("/completed")
     public List<Event> getCompletedEvents() {
         return eventService.getCompletedEvents();
     }
 
-    // Upcoming events after given date
+    // Get upcoming events
     @GetMapping("/upcoming")
     public List<Event> getUpcomingEvents() {
         return eventService.getUpcomingEvents();
@@ -52,6 +52,11 @@ public class EventController {
     @GetMapping("/{id}")
     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
         Event event = eventService.getEventById(id);
+
+        if (event == null) {
+            throw new ResourceNotFoundException("Event not found with id " + id);
+        }
+
         return ResponseEntity.ok(event);
     }
 
@@ -60,9 +65,6 @@ public class EventController {
     public List<Event> getEventsByLocation(@RequestParam("location") String location) {
         return eventService.getEventsByLocation(location);
     }
-
-
-    
 
     // Flexible search with filters
     @GetMapping("/search")
@@ -84,34 +86,36 @@ public class EventController {
                 parsedTime = LocalTime.parse(time); // expects HH:mm
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            throw new IllegalArgumentException("Invalid date or time format. Use yyyy-MM-dd for date and HH:mm for time.");
         }
 
         List<Event> results = eventService.searchEvents(parsedDate, parsedTime, location, type, status);
         return ResponseEntity.ok(results);
     }
 
-    // updating the requried information
+    // Updating the required information
     @PatchMapping("/{id}")
     public ResponseEntity<Event> updateEventPartially(
-        @PathVariable Long id,
-        @RequestBody Map<String, Object> updates
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> updates
     ) {
-    Event updatedEvent = eventService.updateEventPartially(id, updates);
+        Event updatedEvent = eventService.updateEventPartially(id, updates);
+
+        if (updatedEvent == null) {
+            throw new ResourceNotFoundException("Event not found with id " + id);
+        }
+
         return ResponseEntity.ok(updatedEvent);
     }
 
-
-    // Deleting Events by id
-    @DeleteMapping  ("/{id}")
-    public ResponseEntity<String> deleteEvent(@PathVariable Long id){
+    // Deleting events by id
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteEvent(@PathVariable Long id) {
         boolean deleted = eventService.deleteEvent(id);
-        if(!deleted){
-            return ResponseEntity.status(404).body("Event not found");
+        if (!deleted) {
+            throw new ResourceNotFoundException("Event not found with id " + id);
         }
-        return ResponseEntity.ok(("Event deleted successfully"));
-       
+        return ResponseEntity.ok("Event deleted successfully");
     }
-
-
 }
+

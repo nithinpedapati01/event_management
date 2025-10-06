@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.validation.Valid;
+import com.eventmanagement.exception.ResourceNotFoundException;
+
 
 
 @RestController
@@ -43,7 +45,7 @@ public class BookingController {
         if(bookings != null && !bookings.isEmpty()){
             return ResponseEntity.ok(bookings);
         } else {
-            return ResponseEntity.noContent().build();
+            throw new ResourceNotFoundException("No bookings found for event with id " + id);
             }
         }
 
@@ -53,7 +55,7 @@ public class BookingController {
         if(bookings != null && !bookings.isEmpty()){
             return ResponseEntity.ok(bookings);
         } else {
-            return ResponseEntity.noContent().build();
+            throw new ResourceNotFoundException("No bookings found for user with id " + userId);    
             }
         }
 

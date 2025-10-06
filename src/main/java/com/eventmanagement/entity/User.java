@@ -28,7 +28,7 @@ public class User {
     @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
 
-    @Enumerated(EnumType.STRING) // Stores role as a string in DB
-    private Role role = Role.ATTENDEE; // default role
-}
+    @Enumerated(EnumType.STRING) 
+    private Role role = Role.ATTENDEE; 
+} 
 

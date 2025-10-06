@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import com.eventmanagement.exception.ResourceNotFoundException;
+
 
 import java.util.List;
 
@@ -35,8 +37,8 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id){
         return userService.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
     }
 
     @GetMapping("/email/{email}")
@@ -49,15 +51,15 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails){
         return userService.updateUser(id, userDetails)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
     }
 
     @PatchMapping("/{id}/role")
     public ResponseEntity<User> updateUserRole(@PathVariable Long id, @RequestParam Role role){
-        return userService.updateUserRole(id, role)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+         return userService.updateUserRole(id, role)
+            .map(ResponseEntity::ok)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
     }
 
     
