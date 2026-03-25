@@ -1,20 +1,20 @@
 package com.eventmanagement.entity;
 
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
-
-import com.eventmanagement.entity.User;
 import lombok.Data;
 
 
@@ -41,10 +41,10 @@ public class Booking {
 
     @Min(value = 1, message = "At least 1 ticket must be booked")
     @Max(value = 10, message = "You cannot book more than 10 tickets")
-    private Long numberOfTickets;
+    private int numberOfTickets;
 
 
-    @NotBlank(message = "Status is required")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status;
     
 }

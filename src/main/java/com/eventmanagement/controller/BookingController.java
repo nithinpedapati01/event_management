@@ -1,14 +1,15 @@
 package com.eventmanagement.controller;
 
 
-import com.eventmanagement.entity.Booking;
+import com.eventmanagement.dto.response.BookingResponse;
 import com.eventmanagement.service.BookingService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.validation.Valid;
-import com.eventmanagement.exception.ResourceNotFoundException;
+import com.eventmanagement.dto.request.BookingRequest;
+import org.springframework.http.HttpStatus;
+
 
 
 
@@ -21,43 +22,32 @@ public class BookingController {
     public BookingController(BookingService bookingService){
         this.bookingService = bookingService; 
     }
+
     
      @PostMapping
-     public ResponseEntity<Booking> createBooking( @Valid @RequestBody Booking booking) {
-        Booking create = bookingService.createBooking(booking);
-        return ResponseEntity.ok(create);
+     public ResponseEntity<BookingResponse> createBooking( @Valid @RequestBody BookingRequest booking) {
+        BookingResponse createdBooking = bookingService.createBooking(booking);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
      }
 
      @GetMapping
-     public ResponseEntity<List<Booking>> getAllBookings(){
-        List<Booking> bookings = bookingService.getAllBookings();
-        if(bookings != null && !bookings.isEmpty()){
-            return ResponseEntity.ok(bookings);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
-        
+     public ResponseEntity<List<BookingResponse>> getAllBookings(){
+        List<BookingResponse> bookings = bookingService.getAllBookings();
+        return ResponseEntity.ok(bookings);
      }
 
      @GetMapping("/eventBookings/{id}")
-     public ResponseEntity<List<Booking>> getBookingsByEventId(@PathVariable Long id){
-        List<Booking> bookings = bookingService.getBookingsByEventId(id);
-        if(bookings != null && !bookings.isEmpty()){
-            return ResponseEntity.ok(bookings);
-        } else {
-            throw new ResourceNotFoundException("No bookings found for event with id " + id);
-            }
-        }
+     public ResponseEntity<List<BookingResponse>> getBookingsByEventId(@PathVariable Long id){
+        List<BookingResponse> bookings = bookingService.getBookingsByEventId(id);
+        return ResponseEntity.ok(bookings);
+     }
 
     @GetMapping("/userBookings/{userId}")
-    public ResponseEntity<List<Booking>> getBookingsByUserId(@PathVariable Long userId){
-        List<Booking> bookings = bookingService.getBookingsByUserId(userId);
-        if(bookings != null && !bookings.isEmpty()){
-            return ResponseEntity.ok(bookings);
-        } else {
-            throw new ResourceNotFoundException("No bookings found for user with id " + userId);    
-            }
-        }
+    public ResponseEntity<List<BookingResponse>> getBookingsByUserId(@PathVariable Long userId){
+        List<BookingResponse> bookings = bookingService.getBookingsByUserId(userId);
+        return ResponseEntity.ok(bookings);
+    }
+        
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id){

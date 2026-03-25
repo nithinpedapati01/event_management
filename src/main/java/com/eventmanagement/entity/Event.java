@@ -1,12 +1,17 @@
 package com.eventmanagement.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import java.time.LocalDateTime;
 import lombok.Data;
-
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -24,15 +29,23 @@ public class Event {
 
     @NotBlank(message = "Event location cannot be blank")
     private String location;
+    
+    @NotNull(message = "Event date and time is required")
     private LocalDateTime dateTime;
-    @NotNull(message = "Capacity cannot be 0")
+
+    @Min(value = 1, message = "Capacity must be at least 1")
     private int capacity; 
     
-    @NotBlank(message = "please mention event type")
-    private String type;
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
 
-    @NotBlank(message = "Status is required")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.UPCOMING;
+
+    @ManyToOne
+    @JoinColumn(name = "organizer_id")
+    private User organizer;
 
 
 

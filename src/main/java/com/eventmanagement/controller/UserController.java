@@ -1,14 +1,16 @@
 package com.eventmanagement.controller;
 
-import com.eventmanagement.entity.User;
+
+import com.eventmanagement.dto.request.UserRegisterRequest;
+import com.eventmanagement.dto.request.UpdateUserRequest;
 import com.eventmanagement.entity.Role;
 import com.eventmanagement.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-import com.eventmanagement.exception.ResourceNotFoundException;
-
+import com.eventmanagement.dto.response.UserResponse;
+ 
 
 import java.util.List;
 
@@ -23,43 +25,41 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody User user){
-        User savedUser = userService.registerUser(user);
+    public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegisterRequest user){
+        UserResponse savedUser = userService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(){
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserResponse>> getAllUsers(){
+        List<UserResponse> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
-        return userService.getUserById(id)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id){
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@Valid @PathVariable String email){
-        return userService.getUserByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserResponse> getUserByEmail( @PathVariable String email){
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails){
-        return userService.updateUser(id, userDetails)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest userDetails){
+        return ResponseEntity.ok(userService.updateUser(id, userDetails));
     }
 
-    @PatchMapping("/{id}/role")
-    public ResponseEntity<User> updateUserRole(@PathVariable Long id, @RequestParam Role role){
-         return userService.updateUserRole(id, role)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+    @PutMapping("/{id}/role")
+    public ResponseEntity<UserResponse> updateUserRole(@PathVariable Long id, @RequestParam Role role){
+         return ResponseEntity.ok(userService.updateUserRole(id, role));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
     }
 
     

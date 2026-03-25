@@ -1,12 +1,16 @@
 package com.eventmanagement.service;
 
 import com.eventmanagement.entity.User;
+import com.eventmanagement.exception.ResourceNotFoundException;
+import com.eventmanagement.dto.request.UserRegisterRequest;
+import com.eventmanagement.dto.request.UpdateUserRequest;
+import com.eventmanagement.dto.response.UserResponse;
 import com.eventmanagement.entity.Role;
 import com.eventmanagement.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class UserService {
@@ -17,36 +21,67 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User registerUser(User user){
-        user.setRole(Role.ATTENDEE); // default role
-        return userRepository.save(user);
+    private UserResponse mapToResponse(User user){
+        UserResponse res = new UserResponse();
+        res.setId(user.getId());
+        res.setUserName(user.getUserName());
+        res.setEmail(user.getEmail());
+        res.setRole(user.getRole());
+        return res;
     }
 
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    public UserResponse registerUser(UserRegisterRequest request){
+
+        User user = new User();
+        user.setUserName(request.getUserName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword()); // will hash later
+        user.setRole(Role.ATTENDEE);
+
+        User savedUser = userRepository.save(user);
+
+        return mapToResponse(savedUser);
+  }
+
+    public List<UserResponse> getAllUsers(){
+        return userRepository.findAll().stream().map(this::mapToResponse).toList();
     }
 
-    public Optional<User> getUserById(Long id){
-        return userRepository.findById(id);
+    public UserResponse getUserById(Long id){
+        return userRepository.findById(id).map(this::mapToResponse).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    public Optional<User> getUserByEmail(String email){
-        return userRepository.findByEmail(email);
+    public UserResponse getUserByEmail(String email){
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    return mapToResponse(user);
     }
 
-    public Optional<User> updateUser(Long id, User userDetails){
-        return userRepository.findById(id).map(user -> {
-            user.setName(userDetails.getName());
-            user.setEmail(userDetails.getEmail());
-            user.setPassword(userDetails.getPassword());
-            return userRepository.save(user);
-        });
+    public UserResponse updateUser(Long id, UpdateUserRequest request){
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setUserName(request.getUserName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+
+        User updatedUser = userRepository.save(user);
+
+        return mapToResponse(updatedUser);
     }
 
-    public Optional<User> updateUserRole(Long id, Role role){
+    public UserResponse updateUserRole(Long id, Role role){
         return userRepository.findById(id).map(user -> {
             user.setRole(role);
-            return userRepository.save(user);
-        });
+            return mapToResponse(userRepository.save(user));
+        }).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+
+    public void deleteUser(Long id){
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        userRepository.delete(user);
     }
 }
