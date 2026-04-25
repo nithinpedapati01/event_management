@@ -8,7 +8,8 @@ import com.eventmanagement.dto.response.UserResponse;
 import com.eventmanagement.entity.Role;
 import com.eventmanagement.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.List;
 
 
@@ -16,10 +17,14 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
+        this.passwordEncoder=passwordEncoder;
     }
+
+    
 
     private UserResponse mapToResponse(User user){
         UserResponse res = new UserResponse();
@@ -35,7 +40,7 @@ public class UserService {
         User user = new User();
         user.setUserName(request.getUserName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword()); // will hash later
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.ATTENDEE);
 
         User savedUser = userRepository.save(user);
